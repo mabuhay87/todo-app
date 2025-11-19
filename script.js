@@ -37,9 +37,16 @@ function addTask() {
   if (taskText === "") return alert("Please enter a task!");
 
   const li = document.createElement("li");
-  li.textContent = taskText;
 
-  // Add delete button
+  // Task text (inside a span)
+  const textSpan = document.createElement("span");
+  textSpan.textContent = taskText;
+
+  // Timestamp (inside a small)
+  const small = document.createElement("small");
+  small.textContent = "Added on: " + new Date().toLocaleString();
+
+  // Delete button
   const deleteBtn = document.createElement("button");
   deleteBtn.textContent = "❌";
   deleteBtn.classList.add("deleteBtn");
@@ -49,13 +56,17 @@ function addTask() {
     updateUI();
   };
 
-  // Toggle complete
-  li.addEventListener("click", function () {
+  // Toggle complete when clicking text (not the delete button)
+  textSpan.addEventListener("click", function () {
     li.classList.toggle("completed");
     saveTasks();
   });
 
+  // Build the li
+  li.appendChild(textSpan);
   li.appendChild(deleteBtn);
+  li.appendChild(small);
+
   taskList.appendChild(li);
 
   taskInput.value = "";
@@ -67,8 +78,15 @@ function addTask() {
 function saveTasks() {
   const tasks = [];
   document.querySelectorAll("#taskList li").forEach(li => {
+    const textEl = li.querySelector("span");
+    const dateEl = li.querySelector("small");
+
     tasks.push({
-      text: li.firstChild.textContent,
+      text: textEl ? textEl.textContent : "",
+      // strip the label to keep clean date
+      date: dateEl
+        ? dateEl.textContent.replace("Added on: ", "")
+        : new Date().toLocaleString(),
       completed: li.classList.contains("completed"),
     });
   });
@@ -78,7 +96,7 @@ function saveTasks() {
 // Load tasks from localStorage
 function loadTasks() {
   const saved = JSON.parse(localStorage.getItem("tasks") || "[]");
-  
+
   saved.forEach(task => {
     const li = document.createElement("li");
 
@@ -86,9 +104,11 @@ function loadTasks() {
     const textSpan = document.createElement("span");
     textSpan.textContent = task.text;
 
-    // Date
-    const dateSpan = document.createElement("small");
-    dateSpan.textContent = "Added on: " + task.date;
+    //  If task.date is missing (old data), use current time
+    const dateText = task.date || new Date().toLocaleString();
+
+    const small = document.createElement("small");
+    small.textContent = "Added on: " + dateText;
 
     if (task.completed) li.classList.add("completed");
 
@@ -110,14 +130,13 @@ function loadTasks() {
 
     li.appendChild(textSpan);
     li.appendChild(deleteBtn);
-    li.appendChild(dateSpan);
+    li.appendChild(small);
 
     taskList.appendChild(li);
   });
 
   updateUI();
 }
-
 
 // ✅ Handle empty message + Clear All button state
 function updateUI() {
