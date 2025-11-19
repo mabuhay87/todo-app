@@ -78,11 +78,21 @@ function saveTasks() {
 // Load tasks from localStorage
 function loadTasks() {
   const saved = JSON.parse(localStorage.getItem("tasks") || "[]");
+  
   saved.forEach(task => {
     const li = document.createElement("li");
-    li.textContent = task.text;
+
+    // Text
+    const textSpan = document.createElement("span");
+    textSpan.textContent = task.text;
+
+    // Date
+    const dateSpan = document.createElement("small");
+    dateSpan.textContent = "Added on: " + task.date;
+
     if (task.completed) li.classList.add("completed");
 
+    // Delete button
     const deleteBtn = document.createElement("button");
     deleteBtn.textContent = "❌";
     deleteBtn.classList.add("deleteBtn");
@@ -92,16 +102,22 @@ function loadTasks() {
       updateUI();
     };
 
-    li.addEventListener("click", function () {
+    // Toggle complete
+    textSpan.addEventListener("click", function () {
       li.classList.toggle("completed");
       saveTasks();
     });
 
+    li.appendChild(textSpan);
     li.appendChild(deleteBtn);
+    li.appendChild(dateSpan);
+
     taskList.appendChild(li);
   });
+
   updateUI();
 }
+
 
 // ✅ Handle empty message + Clear All button state
 function updateUI() {
