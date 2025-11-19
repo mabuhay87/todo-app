@@ -22,6 +22,10 @@ clearAllBtn.addEventListener("click", function () {
   // Remove all <li> elements from the list
   taskList.innerHTML = "";
 
+  // Show/hide "No tasks" message
+  document.getElementById("emptyMessage").style.display = hasTasks ? "none" : "block";
+
+
   // Remove tasks from localStorage so they don't come back on refresh
   localStorage.removeItem("tasks");
 });
