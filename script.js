@@ -28,6 +28,9 @@ clearAllBtn.addEventListener("click", function () {
 
   // Remove tasks from localStorage so they don't come back on refresh
   localStorage.removeItem("tasks");
+  
+  updateUI();
+  
 });
 
 function addTask() {
@@ -57,6 +60,7 @@ function addTask() {
 
   taskInput.value = "";
   saveTasks();
+  updateUI();
 }
 
 // Save tasks to localStorage
