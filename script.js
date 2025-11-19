@@ -4,11 +4,26 @@ const addBtn = document.getElementById("addBtn");
 const taskList = document.getElementById("taskList");
 const clearAllBtn = document.getElementById("clearAllBtn");
 const emptyMessage = document.getElementById("emptyMessage");
+const filterButtons = document.querySelectorAll(".filter-btn");
+let currentFilter = "all";
+
 
 // Load tasks from Local Storage when page loads
 window.addEventListener("load", () => {
   loadTasks();
   updateUI();
+});
+
+// Filter buttons: All / Pending / Completed
+filterButtons.forEach(btn => {
+  btn.addEventListener("click", () => {
+    currentFilter = btn.dataset.filter; // "all" | "pending" | "completed"
+    applyFilter();
+
+    // Update active button style
+    filterButtons.forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+  });
 });
 
 // Add a new task
@@ -60,6 +75,7 @@ function addTask() {
   textSpan.addEventListener("click", function () {
     li.classList.toggle("completed");
     saveTasks();
+    updateUI();
   });
 
   // Build the li
@@ -104,7 +120,7 @@ function loadTasks() {
     const textSpan = document.createElement("span");
     textSpan.textContent = task.text;
 
-    //  If task.date is missing (old data), use current time
+    // 👉 If task.date is missing (old data), use current time
     const dateText = task.date || new Date().toLocaleString();
 
     const small = document.createElement("small");
@@ -126,6 +142,7 @@ function loadTasks() {
     textSpan.addEventListener("click", function () {
       li.classList.toggle("completed");
       saveTasks();
+      updateUI();
     });
 
     li.appendChild(textSpan);
@@ -138,13 +155,34 @@ function loadTasks() {
   updateUI();
 }
 
-// ✅ Handle empty message + Clear All button state
+// 🔍 Apply current filter to tasks
+function applyFilter() {
+  Array.from(taskList.children).forEach(li => {
+    const isCompleted = li.classList.contains("completed");
+    let shouldShow = false;
+
+    if (currentFilter === "all") {
+      shouldShow = true;
+    } else if (currentFilter === "completed") {
+      shouldShow = isCompleted;
+    } else if (currentFilter === "pending") {
+      shouldShow = !isCompleted;
+    }
+
+    li.style.display = shouldShow ? "" : "none";
+  });
+}
+
+// ✅ Handle empty message + Clear All button state + filter
 function updateUI() {
   const hasTasks = taskList.children.length > 0;
 
-  // Show/hide "No tasks yet! 🎉" message
+  // Show/hide "No tasks yet!" message
   emptyMessage.style.display = hasTasks ? "none" : "block";
 
   // Enable/disable Clear All button
   clearAllBtn.disabled = !hasTasks;
+
+  // Apply current filter
+  applyFilter();
 }
