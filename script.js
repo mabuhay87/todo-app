@@ -2,6 +2,7 @@
 const taskInput = document.getElementById("taskInput");
 const addBtn = document.getElementById("addBtn");
 const taskList = document.getElementById("taskList");
+const clearAllBtn = document.getElementById("clearAllBtn");
 
 // Load tasks from Local Storage when page loads
 window.addEventListener("load", loadTasks);
@@ -10,6 +11,19 @@ window.addEventListener("load", loadTasks);
 addBtn.addEventListener("click", addTask);
 taskInput.addEventListener("keypress", function(e) {
   if (e.key === "Enter") addTask();
+});
+
+// ✅ Clear all tasks
+clearAllBtn.addEventListener("click", function () {
+  const confirmed = confirm("Are you sure you want to clear all tasks?");
+
+  if (!confirmed) return; // if user clicks Cancel, do nothing
+
+  // Remove all <li> elements from the list
+  taskList.innerHTML = "";
+
+  // Remove tasks from localStorage so they don't come back on refresh
+  localStorage.removeItem("tasks");
 });
 
 function addTask() {
