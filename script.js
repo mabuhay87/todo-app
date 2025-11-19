@@ -3,34 +3,33 @@ const taskInput = document.getElementById("taskInput");
 const addBtn = document.getElementById("addBtn");
 const taskList = document.getElementById("taskList");
 const clearAllBtn = document.getElementById("clearAllBtn");
+const emptyMessage = document.getElementById("emptyMessage");
 
 // Load tasks from Local Storage when page loads
-window.addEventListener("load", loadTasks);
+window.addEventListener("load", () => {
+  loadTasks();
+  updateUI();
+});
 
 // Add a new task
 addBtn.addEventListener("click", addTask);
-taskInput.addEventListener("keypress", function(e) {
+taskInput.addEventListener("keypress", function (e) {
   if (e.key === "Enter") addTask();
 });
 
-// ✅ Clear all tasks
+// ✅ Clear all tasks (with confirmation)
 clearAllBtn.addEventListener("click", function () {
   const confirmed = confirm("Are you sure you want to clear all tasks?");
-
-  if (!confirmed) return; // if user clicks Cancel, do nothing
+  if (!confirmed) return;
 
   // Remove all <li> elements from the list
   taskList.innerHTML = "";
 
-  // Show/hide "No tasks" message
-  document.getElementById("emptyMessage").style.display = hasTasks ? "none" : "block";
-
-
   // Remove tasks from localStorage so they don't come back on refresh
   localStorage.removeItem("tasks");
-  
+
+  // Update UI (disable button, show 'No tasks yet! 🎉')
   updateUI();
-  
 });
 
 function addTask() {
@@ -47,6 +46,7 @@ function addTask() {
   deleteBtn.onclick = () => {
     li.remove();
     saveTasks();
+    updateUI();
   };
 
   // Toggle complete
@@ -69,7 +69,7 @@ function saveTasks() {
   document.querySelectorAll("#taskList li").forEach(li => {
     tasks.push({
       text: li.firstChild.textContent,
-      completed: li.classList.contains("completed")
+      completed: li.classList.contains("completed"),
     });
   });
   localStorage.setItem("tasks", JSON.stringify(tasks));
@@ -89,6 +89,7 @@ function loadTasks() {
     deleteBtn.onclick = () => {
       li.remove();
       saveTasks();
+      updateUI();
     };
 
     li.addEventListener("click", function () {
@@ -99,4 +100,16 @@ function loadTasks() {
     li.appendChild(deleteBtn);
     taskList.appendChild(li);
   });
+  updateUI();
+}
+
+// ✅ Handle empty message + Clear All button state
+function updateUI() {
+  const hasTasks = taskList.children.length > 0;
+
+  // Show/hide "No tasks yet! 🎉" message
+  emptyMessage.style.display = hasTasks ? "none" : "block";
+
+  // Enable/disable Clear All button
+  clearAllBtn.disabled = !hasTasks;
 }
